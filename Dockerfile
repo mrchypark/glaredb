@@ -16,10 +16,16 @@ RUN just build --release
 
 FROM debian:bookworm-slim
 
-# Runtime deps.
-RUN apt-get update -y && apt-get install -y openssl ca-certificates openssh-client postgresql-client
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        openssl \
+        ca-certificates \
+        openssh-client \
+        postgresql-client && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy in built stuff.
 COPY --from=builder /usr/src/glaredb/target/release/glaredb /usr/local/bin/glaredb
 
 CMD ["glaredb"]
